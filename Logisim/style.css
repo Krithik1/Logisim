@@ -1,0 +1,30 @@
+html, body {
+    width:  100%;
+    height: 100%;
+    margin: 0;
+}
+
+.container {
+    background-color: grey;
+}
+
+#canvas {
+    overflow: hidden;
+    display: block;
+
+}
+
+#input {
+    width:100%
+}
+
+button:hover {
+    cursor: pointer;
+    background-color: orange;
+}
+
+.btns {
+    border: solid black;
+    border-width: 2px;
+    background-color: black;
+}
