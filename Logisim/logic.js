@@ -225,7 +225,7 @@ function create() {
     console.log(inputText)
     gates.push(new Gate([new Pin(false, inputText, 5, 20), new Pin(false, inputText, 5, 40), new Pin(true, inputText, 65, 30)], inputText))
     console.log(gates)
-    draw()
+    draw();
 }
 
 createButton.onclick = create
