@@ -25,6 +25,10 @@ button:hover {
 
 .btns {
     border: solid black;
-    border-width: 2px;
+    border-width: .1rem;
     background-color: black;
+}
+
+button {
+    margin-right: .2rem;
 }

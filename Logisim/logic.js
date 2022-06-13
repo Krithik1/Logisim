@@ -105,9 +105,9 @@ var prevPin;
 
 function checkPinSameGate(gateImage) {
     var count = 0;
-    for (var i = 0; i < gateImage.length-1; i++) {
+    for (var i = 0; i < gateImage.length - 1; i++) {
         var element = gateImage[i];
-        if ((prevPin.x == element.x && prevPin.y == element.y)||(selectedPin.x == element.x && selectedPin.y == element.y)) {
+        if ((prevPin.x == element.x && prevPin.y == element.y) || (selectedPin.x == element.x && selectedPin.y == element.y)) {
             count++;
         }
     }
@@ -134,9 +134,9 @@ function mouseDown(e) {
         gate.startX = mx;
         gate.startY = my;
 
-        for (var j = 0; j < gate.gateImage.length-1; j++) {
+        for (var j = 0; j < gate.gateImage.length - 1; j++) {
             var p = gate.gateImage[j];
-            if (mx > p.x-5 && mx < p.x+5 && my > p.y-5 && my < p.y+5) {
+            if (mx > p.x - 5 && mx < p.x + 5 && my > p.y - 5 && my < p.y + 5) {
                 p.isDragging = true;
                 if (prevPin === undefined) {
                     if (selectedPin === undefined) {
@@ -222,10 +222,15 @@ function mouseMove(e) {
 
 function create() {
     var inputText = document.getElementById("input").value
-    console.log(inputText)
-    gates.push(new Gate([new Pin(false, inputText, 5, 20), new Pin(false, inputText, 5, 40), new Pin(true, inputText, 65, 30)], inputText))
-    console.log(gates)
-    draw();
+    var newButton = document.createElement("button")
+    newButton.innerHTML = inputText
+    newButton.classList.add(inputText)
+    newButton.onclick = function x() {
+        gates.push(new Gate([new Pin(false, inputText, 5, 20), new Pin(false, inputText, 5, 40), new Pin(true, inputText, 65, 30)], inputText))
+        console.log(gates)
+        draw()
+    }
+    document.querySelector(".btns").appendChild(newButton)
 }
 
 createButton.onclick = create
