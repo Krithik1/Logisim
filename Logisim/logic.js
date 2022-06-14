@@ -33,7 +33,8 @@ class Gate {
                 width: 10,
                 height: 10,
                 fill: 0,
-                isDragging: false
+                isOut: p.type,
+                isOn: false
             });
         });
         this.gateImage.push({
@@ -47,11 +48,16 @@ class Gate {
 }
 
 class Wire {
-    constructor(startX, startY, endX, endY) {
+    constructor(startX, startY, endX, endY, isOn) {
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
+        if (isOn) {
+            this.color = "red"
+        } else {
+            this.color = "black"
+        }
     }
 }
 
@@ -61,6 +67,7 @@ canvas.onmousemove = mouseMove;
 
 var gates = [];
 var gate = new Gate([new Pin(false, "AND", 5, 20), new Pin(false, "AND", 5, 40), new Pin(true, "AND", 65, 30)], "AND");
+gate.gateImage[2].isOn = true;
 gates.push(gate);
 function drawGate(gate) {
     ctx.beginPath();
@@ -68,6 +75,7 @@ function drawGate(gate) {
     ctx.rect(rect.x, rect.y, rect.width, rect.height)
     ctx.textAlign = "center"
     ctx.textBaseline = "middle"
+    ctx.fillStyle = "black"
     ctx.fillText(gate.name, rect.x + (rect.width / 2), rect.y + (rect.height / 2));
     ctx.closePath();
     ctx.stroke();
@@ -75,6 +83,12 @@ function drawGate(gate) {
         ctx.beginPath();
         var pin = gate.gateImage[i];
         ctx.arc(pin.x, pin.y, 5, 0, 2 * Math.PI);
+        if (pin.isOn) {
+            ctx.fillStyle = "red"
+        } else {
+            ctx.fillStyle = "black"
+        }
+        ctx.fill();
         ctx.stroke();
     }
     ctx.closePath();
@@ -84,6 +98,8 @@ function drawWire(w) {
     ctx.beginPath();
     ctx.moveTo(w.startX, w.startY);
     ctx.lineTo(w.endX, w.endY);
+    ctx.strokeStyle = w.color;
+    ctx.fill();
     ctx.stroke();
     ctx.closePath();
 }
@@ -91,6 +107,8 @@ function drawWire(w) {
 function draw() {
     ctx.canvas.width = window.innerWidth;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "black"
+    ctx.fillStyle = "black"
     for (var i = 0; i < gates.length; i++) {
         var gate = gates[i];
         drawGate(gate);
@@ -102,6 +120,9 @@ function draw() {
 
 var selectedPin;
 var prevPin;
+var prevPinIndex;
+var selectedPinIndex;
+var prevGate;
 
 function checkPinSameGate(gateImage) {
     var count = 0;
@@ -112,6 +133,9 @@ function checkPinSameGate(gateImage) {
         }
     }
     if (count == 2) {
+        return true;
+    }
+    if ((prevPin.type == selectedPin.type) || (prevPin.type == false && selectedPin.type == true)) {
         return true;
     }
     return false;
@@ -142,29 +166,46 @@ function mouseDown(e) {
                     if (selectedPin === undefined) {
                         selectedPin = {
                             x: p.x,
-                            y: p.y
+                            y: p.y,
+                            type: p.isOut
                         }
+                        selectedPinIndex = j;
+                        prevGate = gate;
                     } else {
                         prevPin = selectedPin;
                         selectedPin = {
                             x: p.x,
-                            y: p.y
+                            y: p.y,
+                            type: p.isOut
                         }
+                        prevPinIndex = selectedPinIndex;
+                        selectedPinIndex = j;
                         if (!checkPinSameGate(gate.gateImage)) {
-                            listOfWires.push(new Wire(prevPin.x, prevPin.y, selectedPin.x, selectedPin.y))
+                            listOfWires.push(new Wire(prevPin.x, prevPin.y, selectedPin.x, selectedPin.y, prevGate.gateImage[prevPinIndex].isOn))
+                            console.log(prevPinIndex)
+                            console.log(prevGate.pins[prevPinIndex])
+                            console.log(prevGate.gateImage[prevPinIndex])
+                            console.log(gate.pins[j])
+                            console.log(gate.gateImage[j])
+                            if (prevGate.gateImage[prevPinIndex].isOn || gate.gateImage[selectedPinIndex].isOn) {
+                                gate.gateImage[selectedPinIndex].isOn = true;
+                            }
                             draw();
                         }
                         prevPin = undefined;
                         selectedPin = undefined;
+                        prevGate = undefined;
                     }
                 } else {
                     selectedPin = {
                         x: p.x,
-                        y: p.y
+                        y: p.y,
+                        type: p.isOut
                     }
                 }
             }
             console.log(prevPin, selectedPin);
+            console.log(prevPinIndex, selectedPinIndex)
         }
     }
 }
@@ -209,6 +250,11 @@ function mouseMove(e) {
                 a.y += dy;
             })
 
+            for (var i = 0; i < gate.pins.length; i++) {
+                gate.pins[i].x += dx;
+                gate.pins[i].y += dy;
+            }
+
             // redraw the scene with the new rect positions
             draw();
 
@@ -218,6 +264,12 @@ function mouseMove(e) {
 
         }
     })
+}
+
+function x1(inputText) {
+    gates.push(new Gate([new Pin(false, inputText, 5, 20), new Pin(false, inputText, 5, 40), new Pin(true, inputText, 65, 30)], inputText))
+    console.log(gates)
+    draw()
 }
 
 function create() {
@@ -234,5 +286,15 @@ function create() {
 }
 
 createButton.onclick = create
+document.querySelector(".AND").onclick = (() => {
+    gates.push(new Gate([new Pin(false, "AND", 5, 20), new Pin(false, "AND", 5, 40), new Pin(true, "AND", 65, 30)], "AND"))
+    console.log(gates)
+    draw()
+})
+document.querySelector(".OR").onclick = (() => {
+    gates.push(new Gate([new Pin(false, "OR", 5, 20), new Pin(false, "OR", 5, 40), new Pin(true, "OR", 65, 30)], "OR"))
+    console.log(gates)
+    draw()
+})
 
 draw();
